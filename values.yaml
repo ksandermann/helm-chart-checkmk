@@ -1,0 +1,84 @@
+image:
+  repository: "checkmk/check-mk-raw"
+  tag: "1.5.0p12"
+  pullPolicy: Always
+  # Secret must be manually created in the namespace.
+  #pullSecret: "nexus-pull-secret"
+
+pod:
+  useNodeNetworkInterface: false
+  useNodeTime: true
+  nodeTimeZone: "Europe/Berlin"
+  enableLivestatusTCP: true
+  updateStrategyType: Recreate
+  livenessProbe:
+    initialDelaySeconds: 30
+    periodSeconds: 30
+    failureThreshold: 6
+    # timeoutSeconds: 10
+    path: /
+  readinessProbe:
+    initialDelaySeconds: 30
+    periodSeconds: 30
+    failureThreshold: 6
+    # timeoutSeconds: 10
+    path: /
+  additionalEnvs:
+#  - name: ENVNAME
+#    value: "ENVVALUE"
+  additionalEnvsFromSecrets:
+    - env: CMK_PASSWORD
+      secretName: checkmk-credentials
+      secretKey: checkmk.brenntag-prd.password
+
+
+service:
+  type: ClusterIP
+  externalPort: 8000
+  internalPort: 5000
+  protocol: TCP
+  # to use below, pod.enableLivestatusTCP must be set to true, port will always be 6557
+  livestatusTCP:
+    type: NodePort
+    nodePort: 30111
+    protocol: TCP
+
+ingress:
+  enabled: true
+  annotations:
+    kubernetes.io/ingress.class: nginx
+  # kubernetes.io/tls-acme: "true"
+  path: /
+  hosts:
+  - checkmk.csi.nit.de
+  tls:
+    - secretName: csi.nit.de
+      hosts:
+        - checkmk.csi.nit.de
+
+persistence:
+  enabled: true
+  accessMode: ReadWriteOnce
+  ## If defined, storageClass: <storageClass>
+  ## If set to "-", storageClass: "", which disables dynamic provisioning
+  ## If undefined (the default) or set to null, no storageClass spec is
+  ##   set, choosing the default provisioner.  (gp2 on AWS, standard on
+  ##   GKE, AWS & OpenStack)
+  ##
+  # existingClaim:
+  annotations:
+#    "helm.sh/resource-policy": keep
+  storageClass: "thin-delete-201"
+  storageSize: 8Gi
+
+resources:
+  limits:
+    cpu: 1
+    memory: 1Gi
+  requests:
+    cpu: 500m
+    memory: 512Mi
+
+nodeSelector: {}
+tolerations: []
+affinity: {}

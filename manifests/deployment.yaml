@@ -1,0 +1,43 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  labels:
+    app: checkmk
+  name: checkmk-csi-prd
+  namespace: csi-prd
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: checkmk
+  strategy:
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: checkmk
+    spec:
+      hostNetwork: true
+      containers:
+      - image: docker.csi.nit.de/automation/check-mk-enterprise:1.5.0p12
+        imagePullPolicy: IfNotPresent
+        name: checkmk
+        ports:
+        - containerPort: 5000
+          protocol: TCP
+        resources:
+          limits:
+            cpu: 4
+            memory: 8Gi
+          requests:
+            cpu: 2
+            memory: 4Gi
+        volumeMounts:
+        - mountPath: /omd/sites
+          name: checkmk-data
+      volumes:
+      - name: checkmk-data
+        persistentVolumeClaim:
+          claimName: checkmk-csi-prd
+      imagePullSecrets:
+      - name: nexus-pull-secret

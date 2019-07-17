@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: checkmk
+  name: checkmk-csi-prd
+  namespace: csi-prd
+spec:
+  clusterIP: 10.233.0.102
+  ports:
+  - name: checkmk
+    port: 80
+    protocol: TCP
+    targetPort: 5000
+  selector:
+    app: checkmk
+  type: ClusterIP

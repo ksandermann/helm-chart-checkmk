@@ -1,0 +1,30 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  annotations:
+    kubernetes.io/ingress.class: nginx
+  labels:
+    app: checkmk
+  name: checkmk-csi-prd
+  namespace: csi-prd
+spec:
+  rules:
+  - host: checkmk.csi.nit.de
+    http:
+      paths:
+      - backend:
+          serviceName: checkmk-csi-prd
+          servicePort: 80
+        path: /
+  - host: checkmk.csi-cee.de
+    http:
+      paths:
+      - backend:
+          serviceName: checkmk-csi-prd
+          servicePort: 80
+        path: /
+  tls:
+  - hosts:
+    - checkmk.csi.nit.de
+    - checkmk.csi-cee.de
+    secretName: csi.nit.de

@@ -1,2 +1,3 @@
-# helm-chart-checkmk
-Check_mk helm chart for Kubernetes
+# DEPRECATED
+
+This repository is no longer actively maintained and has been moved to [ksandermann/helm-charts](https://github.com/ksandermann/helm-charts).
